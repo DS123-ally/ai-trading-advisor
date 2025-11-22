@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TradingGatewayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: gateway_lambda.lambda_handler
+      Runtime: python3.9
+      Timeout: 30
+      MemorySize: 512
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - bedrock:InvokeModel
+            Resource: 
+              - arn:aws:bedrock:*::foundation-model/amazon.titan-text-express-v1
+      Events:
+        StockDataApi:
+          Type: Api
+          Properties:
+            Path: /stock/{symbol}
+            Method: get
+        AnalysisApi:
+          Type: Api
+          Properties:
+            Path: /analysis/{symbol}
+            Method: get
+        SignalsApi:
+          Type: Api
+          Properties:
+            Path: /signals/{symbol}
+            Method: get
+        PortfolioApi:
+          Type: Api
+          Properties:
+            Path: /portfolio
+            Method: get
+        MarketOverviewApi:
+          Type: Api
+          Properties:
+            Path: /market-overview
+            Method: get
+        ScreenerApi:
+          Type: Api
+          Properties:
+            Path: /screener
+            Method: post
+        HealthApi:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: get
+
+Outputs:
+  TradingGatewayApi:
+    Description: "API Gateway endpoint URL for Trading System"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
